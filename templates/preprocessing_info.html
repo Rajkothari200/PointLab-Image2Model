@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Preprocessing – PointLab</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body { font-family: system-ui, sans-serif; background:#f7fafc; color:#111827; margin:0; padding:20px; line-height:1.6; }
+    .container { max-width:950px; margin:auto; background:#fff; padding:30px; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.05); }
+    nav { background:#1e293b; color:white; padding:12px 24px; display:flex; justify-content:space-between; border-radius:8px; margin-bottom:24px; }
+    nav a { color:white; margin-left:14px; text-decoration:none; font-weight:500; }
+    nav a.active { color:#93c5fd; }
+    h1 { color:#1e3a8a; }
+    h2 { color:#1e3a8a; border-bottom:2px solid #93c5fd; padding-bottom:4px; margin-top:32px; }
+    code { background:#f3f4f6; padding:2px 4px; border-radius:4px; font-size:14px; }
+    ul { margin:6px 0 12px 24px; }
+    .small { font-size:13px; color:#475569; }
+  </style>
+</head>
+<body>
+  <nav>
+    <div><strong>PointLab – Image2Model</strong></div>
+    <div>
+      <a href="/about">About Us</a>
+      <a href="/preprocessing" class="active">Preprocessing</a>
+      <!--<a href="/reconstruction">3D Reconstruction</a>-->
+      <a href="/">Convert to 3D Model</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1>Preprocessing Pipeline</h1>
+    <p>
+      The preprocessing pipeline in <b>PointLab</b> is implemented using
+      <b>OpenCV (cv2)</b> and <b>NumPy</b>. Each stage improves the image quality for
+      subsequent feature extraction and dense matching. Below is a detailed breakdown
+      of all seven stages with methods, formulas, and their importance.
+    </p>
+
+    <h2>1. Histogram Equalization (CLAHE)</h2>
+    <ul>
+      <li><b>Library Used:</b> OpenCV (<code>cv2.createCLAHE()</code>)</li>
+      <li><b>What it does:</b> Contrast Limited Adaptive Histogram Equalization (CLAHE) applied on the luminance (Y) channel of YCrCb color space. Improves local contrast while limiting noise amplification.</li>
+      <li><b>Parameters:</b> <code>clipLimit=3.0</code>, <code>tileGridSize=(8,8)</code></li>
+      <li><b>Why it helps:</b> Improves Scale-invariant Feature Transform (SIFT) feature detection under non-uniform lighting by increasing local contrast without over-amplifying noise.</li>
+    </ul>
+
+    <h2>2. Gaussian Blur</h2>
+    <ul>
+      <li><b>Library Used:</b> OpenCV (<code>cv2.GaussianBlur()</code>)</li>
+      <li><b>Kernel:</b> 5×5 (sigma chosen automatically by OpenCV when sigma=0)</li>
+      <li><b>Formula:</b> Gaussian kernel: G(x,y) = (1 / (2 · pi · sigma^2)) · exp( - (x^2 + y^2) / (2 · sigma^2) )</li>
+      <li><b>Why it helps:</b> Smooths high-frequency noise (sensor noise, compression artifacts) while preserving larger-scale edges, reducing spurious keypoints.</li>
+    </ul>
+
+    <h2>3. Sharpening (Unsharp Mask)</h2>
+    <ul>
+      <li><b>Library Used:</b> OpenCV + NumPy</li>
+      <li><b>Method:</b> Unsharp mask: sharpened = original + alpha * (original - blurred)</li>
+      <li><b>Why it helps:</b> Emphasizes edges and small structural details so descriptors (SIFT) are more distinctive and repeatable across views.</li>
+    </ul>
+
+    <h2>4. Edge Detection (Canny)</h2>
+    <ul>
+      <li><b>Library Used:</b> OpenCV (<code>cv2.Canny()</code>)</li>
+      <li><b>Thresholds:</b> low = 100, high = 200 (used in code)</li>
+      <li><b>Algorithm:</b> Compute image gradients Gx and Gy (Sobel). Gradient magnitude G = sqrt(Gx^2 + Gy^2).</li>
+      <li><b>Why it helps:</b> Produces a structural edge map useful for debugging and verifying that important contours survive preprocessing.</li>
+    </ul>
+
+    <h2>5. Median Filtering</h2>
+    <ul>
+      <li><b>Library Used:</b> OpenCV (<code>cv2.medianBlur()</code>)</li>
+      <li><b>Kernel Size:</b> <code>5×5</code></li>
+        <li><b>Formula:</b> Each output pixel is replaced by the median of its neighboring pixels<br></li>
+      <li><b>Purpose:</b> Removes salt-and-pepper and impulse noise while preserving strong edges.</li>
+      <li><b>How it helps:</b> Produces smoother, denoised images without edge blurring — improving structure for morphology and 3D reconstruction.</li>
+    </ul>
+
+    <h2>6. Morphological Cleaning (Opening + Closing)</h2>
+    <ul>
+      <li><b>Library Used:</b> OpenCV (<code>cv2.morphologyEx()</code>)</li>
+      <li><b>Kernel:</b> 3×3 structuring element</li>
+        <li><b>Formulas:</b><br>
+        <b>Opening:</b> <i>A ○ B = (A ⊖ B) ⊕ B</i><br>
+        <b>Closing:</b> <i>A ● B = (A ⊕ B) ⊖ B</i>
+         </li>
+      <li><b>Purpose:</b> Removes small artifacts and fills tiny gaps to refine shapes and edges.</li>
+      <li><b>How it helps:</b> Produces cleaner geometric structures, reducing false contours before feature extraction.</li>
+    </ul>
+
+    <h2>7. Final Processed Output</h2>
+    <ul>
+      <li><b>What is saved:</b> Combines sharpening and morphology results, normalizes intensity, and smooths edges.</li>
+      <li><b>Why it helps:</b> Generates a visually balanced image with enhanced clarity and contrast, ideal for COLMAP’s feature extraction.</li>
+    </ul>
+
+</div>
+</body>
+</html>

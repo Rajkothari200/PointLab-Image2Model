@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>About – PointLab</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body { font-family: system-ui, sans-serif; background:#f7fafc; color:#111827; margin:0; padding:20px; }
+    .container { max-width:1000px; margin:auto; background:#fff; padding:24px; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.05); }
+    nav { background:#1e293b; color:white; padding:12px 24px; display:flex; justify-content:space-between; border-radius:8px; margin-bottom:20px; }
+    nav a { color:white; margin-left:14px; text-decoration:none; font-weight:500; }
+    nav a.active { color:#93c5fd; }
+    h1 { color:#1e3a8a; }
+    .team { display:flex; gap:24px; margin-top:24px; justify-content:center; }
+    .member { flex:1; text-align:center; max-width:400px; }
+    .member img { width:160px; height:160px; border-radius:50%; object-fit:cover; margin-bottom:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
+    .member h3 { margin:8px 0 4px 0; }
+    .member p { font-size:14px; color:#374151; line-height:1.5; }
+    @media (max-width:768px) {
+      .team { flex-direction:column; align-items:center; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div><strong>PointLab – Image2Model</strong></div>
+    <div>
+      <a href="/about" class="active">About Us</a>
+      <a href="/preprocessing">Preprocessing</a>
+      <!--<a href="/reconstruction">3D Reconstruction</a>-->
+      <a href="/">Convert to 3D Model</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1>About PointLab</h1>
+    <p>
+      <strong>PointLab – Image2Model</strong> is a research-driven engineering project that transforms 2D photographs
+      into accurate, metric 3D point clouds and mesh reconstructions. By integrating classical image preprocessing
+      with advanced <b>Structure-from-Motion</b> (SfM) and <b>Multi-View Stereo</b> (MVS) algorithms through
+      <b>COLMAP</b>, PointLab provides high-fidelity model generation directly from standard camera imagery.
+    </p>
+
+    <p>
+      Our mission is to streamline the 3D reconstruction workflow for research, education, and industrial applications —
+      making the process transparent, explainable, and reproducible. From preprocessing (contrast enhancement,
+      denoising, sharpening, segmentation) to dense fusion, every step in PointLab is modular, parameter-controlled,
+      and optimized for precision and performance.
+    </p>
+
+    <h2>Team</h2>
+    <div class="team">
+      <div class="member">
+        <img src="/static/img/RAJ.jpg" alt="Raj Kothari">
+        <h3>Raj Kothari</h3>
+      </div>
+      <div class="member">
+        <img src="/static/img/BHAVYA.jpg" alt="Bhavya Sanghrajka">
+        <h3>Bhavya Sanghrajka</h3>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

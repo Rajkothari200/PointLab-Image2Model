@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>3D Reconstruction – PointLab</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body { font-family: system-ui, sans-serif; background:#f7fafc; color:#111827; margin:0; padding:20px; line-height:1.6; }
+    .container { max-width:950px; margin:auto; background:#fff; padding:30px; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.05); }
+    nav { background:#1e293b; color:white; padding:12px 24px; display:flex; justify-content:space-between; border-radius:8px; margin-bottom:24px; }
+    nav a { color:white; margin-left:14px; text-decoration:none; font-weight:500; }
+    nav a.active { color:#93c5fd; }
+    h1 { color:#1e3a8a; }
+    h2 { color:#1e3a8a; border-bottom:2px solid #93c5fd; padding-bottom:4px; margin-top:32px; }
+    code { background:#f3f4f6; padding:2px 4px; border-radius:4px; font-size:14px; }
+    ul { margin:6px 0 12px 24px; }
+    .small { font-size:13px; color:#475569; }
+  </style>
+</head>
+<body>
+  <nav>
+    <div><strong>PointLab – Image2Model</strong></div>
+    <div>
+      <a href="/about">About Us</a>
+      <a href="/preprocessing">Preprocessing</a>
+      <a href="/reconstruction" class="active">3D Reconstruction</a>
+      <a href="/">Convert to 3D Model</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1>3D Reconstruction Stages (COLMAP)</h1>
+    <p>
+      This section explains the six major stages executed by <b>COLMAP</b> within the PointLab pipeline.
+      Each stage transforms raw images into a final 3D model through a series of algorithms involving
+      feature detection, matching, triangulation, and dense reconstruction.
+      The process uses command-line tools from COLMAP, executed in sequence via Flask’s backend automation.
+    </p>
+
+    <h2>1. Feature Extraction</h2>
+    <ul>
+      <li><b>Command Used:</b> <code>colmap feature_extractor --database_path database.db --image_path ./images</code></li>
+      <li><b>Algorithm:</b> SIFT (Scale Invariant Feature Transform)</li>
+      <li><b>Details:</b>
+        <ul>
+          <li>Detects keypoints (corners or texture points) invariant to scale and rotation.</li>
+          <li>Computes 128-dimensional feature descriptors representing local image patches.</li>
+          <li>Stores these descriptors in <code>database.db</code> for later matching.</li>
+        </ul>
+      </li>
+      <li><b>Internal Steps:</b>
+        <ul>
+          <li>Builds image pyramid → detects extrema in Difference of Gaussian (DoG).</li>
+          <li>Assigns orientations → computes SIFT descriptor vectors.</li>
+        </ul>
+      </li>
+      <li><b>Output:</b> Keypoints and descriptors stored in COLMAP’s SQLite database.</li>
+      <li><b>Purpose:</b> Creates the foundation for feature correspondences between views. Each keypoint acts as a "tie-point" across overlapping images.</li>
+    </ul>
+
+    <h2>2. Matching</h2>
+    <ul>
+      <li><b>Command Used:</b> <code>colmap exhaustive_matcher --database_path database.db</code></li>
+      <li><b>Algorithm:</b> Exhaustive pairwise feature matching.</li>
+      <li><b>Details:</b>
+        <ul>
+          <li>Compares all possible image pairs to find corresponding features.</li>
+          <li>Uses a ratio test (Lowe’s ratio = 0.8) to reject ambiguous matches.</li>
+          <li>Performs geometric verification using epipolar constraints (RANSAC-based).</li>
+        </ul>
+      </li>
+      <li><b>Output:</b> Verified feature matches between image pairs saved in the database.</li>
+      <li><b>Purpose:</b> Builds a match graph linking images that observe common 3D structure. Crucial for reconstruction consistency.</li>
+    </ul>
+
+    <h2>3. Sparse Mapping (Structure-from-Motion)</h2>
+    <ul>
+      <li><b>Command Used:</b> <code>colmap mapper --database_path database.db --image_path ./images --output_path ./sparse</code></li>
+      <li><b>Algorithm:</b> Incremental Structure-from-Motion (SfM)</li>
+      <li><b>Process:</b>
+        <ul>
+          <li>Begins with an initial image pair with sufficient overlap.</li>
+          <li>Triangulates corresponding keypoints to compute 3D coordinates.</li>
+          <li>Performs camera pose estimation using Perspective-n-Point (PnP) and bundle adjustment.</li>
+          <li>Incrementally adds new images, re-triangulates points, and refines camera intrinsics and extrinsics.</li>
+        </ul>
+      </li>
+      <li><b>Output:</b> Sparse 3D point cloud (with color), estimated camera poses, and intrinsic parameters.</li>
+      <li><b>Purpose:</b> Produces a geometric skeleton of the scene—accurate but not dense.</li>
+    </ul>
+
+    <h2>4. Model Conversion</h2>
+    <ul>
+      <li><b>Command Used:</b> <code>colmap model_converter --input_path ./sparse/0 --output_path ./sparse/0_txt --output_type TXT</code></li>
+      <li><b>Function:</b> Converts binary model files into readable <code>.txt</code> files (cameras.txt, images.txt, points3D.txt).</li>
+      <li><b>Purpose:</b>
+        <ul>
+          <li>Allows inspection of reconstruction data (camera intrinsics, extrinsics, 3D points).</li>
+          <li>Used for debugging, verifying camera alignment, and referencing point accuracy.</li>
+        </ul>
+      </li>
+      <li><b>Why it helps:</b> Makes COLMAP’s binary outputs transparent and easier to interpret before proceeding to dense reconstruction.</li>
+    </ul>
+
+    <h2>5. Undistortion</h2>
+    <ul>
+      <li><b>Command Used:</b> <code>colmap image_undistorter --image_path ./images --input_path ./sparse/0 --output_path ./dense --output_type COLMAP</code></li>
+      <li><b>Purpose:</b> Removes radial and tangential lens distortion using camera calibration parameters estimated during sparse mapping.</li>
+      <li><b>Process:</b>
+        <ul>
+          <li>Reprojects each input image into a normalized coordinate frame.</li>
+          <li>Prepares rectified images that can be compared pixel-to-pixel during dense matching.</li>
+        </ul>
+      </li>
+      <li><b>Output:</b> Rectified (undistorted) images and corresponding camera models stored in <code>dense/images</code>.</li>
+      <li><b>Why it helps:</b> Enables accurate multi-view stereo computation by eliminating optical distortion inconsistencies.</li>
+    </ul>
+
+    <h2>6. Dense Reconstruction (PatchMatch + Fusion)</h2>
+    <ul>
+      <li><b>Commands Used:</b>
+        <ul>
+          <li><code>colmap patch_match_stereo --workspace_path ./dense --workspace_format COLMAP --PatchMatchStereo.geom_consistency true --PatchMatchStereo.max_image_size 1600 --PatchMatchStereo.num_iterations 3 --PatchMatchStereo.num_samples 10</code></li>
+          <li><code>colmap stereo_fusion --workspace_path ./dense --workspace_format COLMAP --input_type geometric --output_path ./dense/fused.ply</code></li>
+        </ul>
+      </li>
+      <li><b>PatchMatch Algorithm:</b>
+        <ul>
+          <li>Performs pixel-wise depth estimation using multi-view stereo.</li>
+          <li>Randomly samples plane hypotheses for each pixel and propagates the best matches iteratively to neighbors.</li>
+          <li>Uses geometric consistency checks to ensure plausible depth maps across views.</li>
+        </ul>
+      </li>
+      <li><b>Stereo Fusion:</b>
+        <ul>
+          <li>Combines all per-view depth maps into a single dense 3D point cloud.</li>
+          <li>Removes inconsistent points using photometric and geometric filtering.</li>
+        </ul>
+      </li>
+      <li><b>Output:</b> <code>fused.ply</code> — a dense, colored 3D model representing the final reconstruction.</li>
+      <li><b>Why it helps:</b> Converts sparse structure into a complete dense model suitable for visualization, meshing, or export.</li>
+    </ul>
+  </div>
+</body>
+</html>

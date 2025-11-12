@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>PointLab - Image2Model</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root { --card-bg:#fff; --accent:#2563eb; --muted:#e6edf3; --chip:#f3f4f6; }
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; padding: 20px; background:#f7fafc; color:#111827; }
+    .container { max-width:1100px; margin: 0 auto; }
+    .card { background:var(--card-bg); border-radius:10px; padding:18px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+    .row { display:flex; gap:16px; align-items:center; }
+    .col { display:flex; flex-direction:column; gap:12px; }
+    .progress { height:18px; background:var(--muted); border-radius:9px; overflow:hidden; }
+    .progress > div { height:100%; width:0%; background:var(--accent); transition: width 300ms ease; }
+    .status { display:flex; justify-content:space-between; align-items:center; margin-top:8px; }
+    .stages-box { display:flex; gap:12px; margin-top:14px; flex-wrap:wrap; }
+    .stage-list { background:#fbfdff; padding:12px; border-radius:10px; min-width:260px; box-shadow: inset 0 1px 0 rgba(0,0,0,0.02); }
+    .stage-item { display:flex; align-items:center; gap:10px; padding:8px; border-radius:8px; font-size:14px; }
+    .tick { width:22px; height:22px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; background:#eef2ff; color:green; font-weight:bold; }
+    .notick { width:22px; height:22px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; background:#f3f4f6; color:#94a3b8; }
+    .gallery-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 24px;
+      border-radius: 12px;
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      padding: 10px 12px;
+      max-width: 100%;
+    }
+    .gallery-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .stage-gallery {
+      display: block;
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: nowrap;
+      border-radius: 8px;
+      background: #f9fafb;
+      padding: 8px;
+      scrollbar-width: thin;
+      max-width: 100%;
+      min-height: 120px;
+    }
+    .stage-gallery::-webkit-scrollbar { height: 8px; }
+    .stage-gallery::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .stage-gallery::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .thumb { display:inline-block; width:160px; height:120px; object-fit:cover; border-radius:8px; margin-right:8px; }
+    .download-btn { background:var(--accent); color:white; padding:8px 10px; border-radius:8px; border:none; cursor:pointer; }
+    .ply-btn { background:#0b5ed7; color:white; padding:12px 16px; border-radius:10px; border:none; cursor:pointer; font-weight:600; }
+    .small { font-size:13px; color:#6b7280; }
+    .hidden { display:none; }
+    header h1 { margin:0 0 6px 0; font-size:20px; }
+    .controls { margin-top:14px; display:flex; gap:12px; align-items:center; }
+    input[type="file"] { display:block; }
+    .model-files-section { margin-top:20px; padding:14px; background:#ffffff; border-radius:10px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); display:flex; justify-content:space-between; align-items:center; }
+    .model-files-left { display:flex; gap:12px; align-items:center; }
+    .model-filename { font-weight:600; color:#0f172a; }
+    .model-sub { color:#475569; font-size:14px; }
+  </style>
+</head>
+<body>
+  <nav style="
+    background:#1e293b;
+    color:white;
+    padding:12px 24px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-radius:8px;
+    margin-bottom:20px;
+  ">
+    <div style="font-size:20px; font-weight:700;">PointLab – Image2Model</div>
+    <div style="display:flex; gap:16px; font-weight:500;">
+      <a href="/about" style="color:white; text-decoration:none;">About Us</a>
+      <a href="/preprocessing" style="color:white; text-decoration:none;">Preprocessing</a>
+      <!--<a href="/reconstruction" style="color:white; text-decoration:none;">3D Reconstruction</a>-->
+      <a href="/" style="color:#93c5fd; text-decoration:none;">Convert to 3D Model</a>
+    </div>
+</nav>
+
+  <div class="container">
+    <div class="card">
+      <header>
+        <h1>Convert images → 3D model</h1>
+        <div class="small">Upload images (jpg/png). Click <b>Upload & Start Conversion</b>. Keep this tab open while processing.</div>
+      </header>
+
+      <div class="controls">
+        <input id="fileInput" type="file" name="files[]" multiple accept=".jpg,.jpeg,.png">
+        <button id="uploadBtn" class="download-btn">Upload & Start Conversion</button>
+      </div>
+
+      <div style="margin-top:14px">
+        <div class="progress"><div id="progressBar"></div></div>
+        <div class="status">
+          <div id="statusText">Idle</div>
+          <div id="percentText">0%</div>
+        </div>
+
+        <div class="stages-box">
+          <div class="stage-list" id="preprocessList">
+            <strong>Preprocessing</strong>
+            <div id="preprocessItems"></div>
+          </div>
+
+          <div class="stage-list" id="colmapList">
+            <strong>3D Reconstruction</strong>
+            <div id="colmapItems"></div>
+          </div>
+        </div>
+
+        <!-- NEW: Model File / PLY Files section -->
+        <div id="modelFilesSection" class="model-files-section hidden" aria-hidden="true">
+          <div class="model-files-left">
+            <div>
+              <div style="font-size:16px; font-weight:700;">Model File (PLY Files)</div>
+              <div class="model-sub">Download the final reconstructed mesh (PLY)</div>
+            </div>
+            <div id="modelInfo" style="display:flex; flex-direction:column;">
+              <div class="model-filename" id="modelFilename">—</div>
+              <div class="small" id="modelSize"></div>
+            </div>
+          </div>
+          <div>
+            <a id="plyDownloadBtn" class="ply-btn hidden" href="#" download>Download PLY</a>
+          </div>
+        </div>
+        <!-- END NEW SECTION -->
+
+        <div id="galleries" style="margin-top:18px;">
+          <!-- Galleries will be inserted here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* Server-provided constants (safe JSON from Jinja) */
+const PREPROCESS_LABELS = {{ preprocess_labels | tojson }};
+const PREPROCESS_KEYS_ARR = {{ preprocess_keys | tojson }};
+const COLMAP_STAGES = {{ colmap_stages | tojson }};
+
+/* DOM refs */
+const uploadBtn = document.getElementById("uploadBtn");
+const fileInput = document.getElementById("fileInput");
+const progressBar = document.getElementById("progressBar");
+const percentText = document.getElementById("percentText");
+const statusText = document.getElementById("statusText");
+const preprocessItems = document.getElementById("preprocessItems");
+const colmapItems = document.getElementById("colmapItems");
+const galleries = document.getElementById("galleries");
+
+/* New model file UI refs */
+const modelFilesSection = document.getElementById("modelFilesSection");
+const plyDownloadBtn = document.getElementById("plyDownloadBtn");
+const modelFilenameEl = document.getElementById("modelFilename");
+const modelSizeEl = document.getElementById("modelSize");
+
+let currentRunId = null;
+let progress = 0;
+
+/* Build UI lists and galleries */
+function createLists() {
+  PREPROCESS_LABELS.forEach((label, idx) => {
+    const id = "preproc-" + idx;
+    const div = document.createElement("div");
+    div.className = "stage-item";
+    div.id = id;
+    div.innerHTML = `<div class="notick" id="${id}-tick">–</div><div>${label}</div>`;
+    preprocessItems.appendChild(div);
+
+    const gb = document.createElement("div");
+    gb.className = "gallery-row";
+    gb.id = "gallery-row-" + idx;
+    gb.innerHTML = `
+      <div class="gallery-header">
+        <strong>${label}</strong>
+        <button class="download-btn" id="download-btn-${idx}" data-stage="${PREPROCESS_KEYS_ARR[idx]}">Download ZIP</button>
+      </div>
+      <div class="stage-gallery" id="gallery-${idx}"></div>
+    `;
+    galleries.appendChild(gb);
+  });
+
+  COLMAP_STAGES.forEach((label, idx) => {
+    const id = "colmap-" + idx;
+    const div = document.createElement("div");
+    div.className = "stage-item";
+    div.id = id;
+    div.innerHTML = `<div class="notick" id="${id}-tick">–</div><div>${label}</div>`;
+    colmapItems.appendChild(div);
+  });
+}
+
+createLists();
+
+/* Mark stage done UI */
+function markPreprocessDone(idx) {
+  const tick = document.getElementById(`preproc-${idx}-tick`);
+  if (tick) { tick.className = "tick"; tick.innerText = "✓"; }
+}
+function markColmapDone(idx) {
+  const tick = document.getElementById(`colmap-${idx}-tick`);
+  if (tick) { tick.className = "tick"; tick.innerText = "✓"; }
+}
+
+/* Add thumbnail to stage gallery (deduplicate by URL pathname) */
+function addThumbToStage(stageKey, url) {
+  const idx = PREPROCESS_KEYS_ARR.indexOf(stageKey);
+  // fallback to 'final_processed' if not found
+  const resolvedIdx = idx !== -1 ? idx : PREPROCESS_KEYS_ARR.indexOf('final_processed');
+  if (resolvedIdx === -1) return;
+
+  const gallery = document.getElementById(`gallery-${resolvedIdx}`);
+  if (!gallery) return;
+
+  // Normalize to comparable pathname (handles absolute OR relative URLs)
+  let newPath;
+  try {
+    newPath = new URL(url, window.location.origin).pathname;
+  } catch (e) {
+    // fallback: use raw url if URL() fails for some reason
+    newPath = url;
+  }
+
+  // If any existing <img> has the same pathname, skip (dedupe)
+  const existing = Array.from(gallery.querySelectorAll('img')).some(i => {
+    try {
+      return new URL(i.src).pathname === newPath;
+    } catch (e) {
+      return i.src === url;
+    }
+  });
+  if (existing) return;
+
+  const img = document.createElement("img");
+  img.src = url;
+  img.className = "thumb";
+  gallery.appendChild(img);
+}
+
+
+
+/* Wire download buttons */
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest("button");
+  if (!btn) return;
+  if (btn.id && btn.id.startsWith("download-btn-")) {
+    const stage = btn.getAttribute("data-stage");
+    if (!currentRunId) { alert("No run yet"); return; }
+    const url = `/download_stage/${currentRunId}/${stage}`;
+    window.open(url, "_blank");
+  }
+});
+
+/* Upload handler */
+uploadBtn.addEventListener("click", async () => {
+  const files = fileInput.files;
+  if (!files || files.length === 0) {
+    alert("Please select at least one image.");
+    return;
+  }
+  uploadBtn.disabled = true;
+  statusText.innerText = "Uploading...";
+  const formData = new FormData();
+  for (let f of files) formData.append("files[]", f);
+
+  try {
+    const res = await fetch("/upload", { method: "POST", body: formData });
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.error || "Upload failed");
+      uploadBtn.disabled = false;
+      return;
+    }
+    currentRunId = data.run_id;
+    statusText.innerText = "Uploaded — starting conversion...";
+    openSSE(currentRunId);
+  } catch (err) {
+    alert("Upload error: " + err);
+    uploadBtn.disabled = false;
+  }
+});
+
+/* Helper to extract filename & size (async HEAD) */
+async function setModelFileInfo(url) {
+  try {
+    // extract filename
+    const name = url.split("/").pop();
+    modelFilenameEl.innerText = name;
+    // try to get size via HEAD (may be blocked by some setups)
+    try {
+      const resp = await fetch(url, { method: "HEAD" });
+      if (resp.ok) {
+        const len = resp.headers.get("content-length");
+        if (len) {
+          const kb = Math.round((parseInt(len, 10) / 1024));
+          modelSizeEl.innerText = `${kb} KB`;
+        } else {
+          modelSizeEl.innerText = "";
+        }
+      }
+    } catch(e) {
+      modelSizeEl.innerText = "";
+    }
+  } catch (e) {
+    modelFilenameEl.innerText = "-";
+    modelSizeEl.innerText = "";
+  }
+}
+
+/* Open SSE and react to structured messages */
+function openSSE(runId) {
+  progressBar.style.width = "0%";
+  percentText.innerText = "0%";
+  statusText.innerText = "Starting...";
+  PREPROCESS_KEYS_ARR.forEach((k, i) => {
+    const g = document.getElementById(`gallery-${i}`);
+    if (g) g.innerHTML = "";
+    const tick = document.getElementById(`preproc-${i}-tick`);
+    if (tick) { tick.className = "notick"; tick.innerText = "–"; }
+  });
+  COLMAP_STAGES.forEach((_, i) => {
+    const tick = document.getElementById(`colmap-${i}-tick`);
+    if (tick) { tick.className = "notick"; tick.innerText = "–"; }
+  });
+
+  // hide / reset model UI
+  plyDownloadBtn.classList.add("hidden");
+  modelFilesSection.classList.add("hidden");
+  modelFilesSection.setAttribute("aria-hidden", "true");
+
+  const evtSource = new EventSource(`/stream/${runId}`);
+  evtSource.onmessage = async (e) => {
+    const d = JSON.parse(e.data);
+
+    // progress and status
+    if (d.progress !== undefined) {
+      progressBar.style.width = d.progress + "%";
+      percentText.innerText = d.progress + "%";
+
+      // Auto-tick Model Conversion if progress passes 55%
+      if (d.progress >= 55 && d.progress < 58) {
+        markColmapDone(3);
+      }
+    }
+    if (d.type === "status" && d.message) statusText.innerText = d.message;
+    if (d.type === "log" && d.message) statusText.innerText = d.message;
+
+    // preprocess images
+    // per-image preview -> show under ORIGINAL_IMAGE only (avoid duplicating final_processed)
+    if (d.type === "preprocess_image" && d.image) {
+      addThumbToStage("original_image", d.image);
+    }
+
+    // per-stage done events
+    if (d.type === "stage_done") {
+      if (d.group === "preprocessing") {
+        const stageKey = d.stage_key;
+        const idx = PREPROCESS_KEYS_ARR.indexOf(stageKey);
+        if (idx !== -1) {
+          markPreprocessDone(idx);
+          if (d.thumbs && d.thumbs.length) d.thumbs.forEach(url => addThumbToStage(stageKey, url));
+        }
+      } else if (d.group === "colmap") {
+        const name = d.stage_name;
+        let idx = COLMAP_STAGES.indexOf(name);
+        // fallback fuzzy mapping
+        if (idx === -1) {
+          const lname = (name || "").toLowerCase();
+          if (lname.includes("feature")) idx = 0;
+          else if (lname.includes("match")) idx = 1;
+          else if (lname.includes("sparse") || lname.includes("mapper")) idx = 2;
+          else if (lname.includes("undistort")) idx = 3;
+          else if (lname.includes("dense") || lname.includes("fusion") || lname.includes("patch")) idx = 4;
+        }
+        if (idx !== -1) markColmapDone(idx);
+      }
+    }
+
+    // final output (PLY)
+    if (d.type === "done" && d.fused_ply) {
+      // set the main PLY button
+      plyDownloadBtn.href = d.fused_ply;
+
+      // show model files section + button
+      plyDownloadBtn.classList.remove("hidden");
+      modelFilesSection.classList.remove("hidden");
+      modelFilesSection.setAttribute("aria-hidden", "false");
+
+      // set filename and size (attempt HEAD)
+      setModelFileInfo(d.fused_ply);
+
+      statusText.innerText = "Completed ✓";
+      evtSource.close();
+      uploadBtn.disabled = false;
+    }
+
+    // errors
+    if (d.type === "error") {
+      alert("Error: " + (d.message || "Unknown"));
+      evtSource.close();
+      uploadBtn.disabled = false;
+    }
+  };
+
+  evtSource.onerror = (err) => {
+    console.error("SSE error", err);
+    statusText.innerText = "Connection error or server closed the stream.";
+    uploadBtn.disabled = false;
+    evtSource.close();
+  };
+}
+</script>
+</body>
+</html>
