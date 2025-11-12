@@ -140,18 +140,76 @@ This project is licensed under the **MIT License**, allowing open academic and r
 ---
 
 ## 🖼️ Output Images (Example Results)
-After reconstruction, PointLab generates structured output folders containing intermediate and final results:
+#### Original
+<p align="left">
+  <img src="original_images/DPP_0807.JPG" width="220" style="margin-right:8px"/>
+  <img src="original_images/DPP_0808.JPG" width="220" style="margin-right:8px"/>
+  <img src="original_images/DPP_0809.JPG" width="220" style="margin-right:8px"/>
+  <img src="original_images/DPP_0810.JPG" width="220"/>
+</p>
 
-| Stage | Folder Name | Description |
-|--------|--------------|-------------|
-| **Histogram Equalized** | `/runs/.../histogram_equalized/` | Enhanced global and local contrast |
-| **Gaussian Blur** | `/runs/.../gaussian_blur/` | Noise-suppressed, smoothened image |
-| **Sharpened** | `/runs/.../sharpened/` | Edge clarity improved for feature detection |
-| **Edges** | `/runs/.../edges/` | Canny-based edge outlines for structural integrity |
-| **Median + Morphology** | `/runs/.../morphology/` | Refined and cleaned image for uniform depth maps |
-| **Final Processed** | `/runs/.../final_processed/` | Balanced, noise-free final image input to COLMAP |
-| **Dense Model (PLY)** | `/runs/.../dense/fused.ply` | Final reconstructed 3D point cloud |
+#### Histogram Equalized
+<p align="left">
+  <img src="histogram_equalized/DPP_0807.JPG" width="220" style="margin-right:8px"/>
+  <img src="histogram_equalized/DPP_0808.JPG" width="220" style="margin-right:8px"/>
+  <img src="histogram_equalized/DPP_0809.JPG" width="220" style="margin-right:8px"/>
+  <img src="histogram_equalized/DPP_0810.JPG" width="220"/>
+</p>
 
-Each folder corresponds to a distinct stage in the preprocessing and reconstruction workflow, ensuring transparency and reproducibility.
+#### Gaussian Blur
+<p align="left">
+  <img src="gaussian_blur/DPP_0807.JPG" width="220" style="margin-right:8px"/>
+  <img src="gaussian_blur/DPP_0808.JPG" width="220" style="margin-right:8px"/>
+  <img src="gaussian_blur/DPP_0809.JPG" width="220" style="margin-right:8px"/>
+  <img src="gaussian_blur/DPP_0810.JPG" width="220"/>
+</p>
+
+#### Sharpened
+<p align="left">
+  <img src="sharpened/DPP_0807.JPG" width="220" style="margin-right:8px"/>
+  <img src="sharpened/DPP_0808.JPG" width="220" style="margin-right:8px"/>
+  <img src="sharpened/DPP_0809.JPG" width="220" style="margin-right:8px"/>
+  <img src="sharpened/DPP_0810.JPG" width="220"/>
+</p>
+
+#### Median Filtered
+<p align="left">
+  <img src="median_filtered/DPP_0807.JPG" width="220" style="margin-right:8px"/>
+  <img src="median_filtered/DPP_0808.JPG" width="220" style="margin-right:8px"/>
+  <img src="median_filtered/DPP_0809.JPG" width="220" style="margin-right:8px"/>
+  <img src="median_filtered/DPP_0810.JPG" width="220"/>
+</p>
+
+#### Morphological Cleaned
+<p align="left">
+  <img src="morphology/DPP_0807.JPG" width="220" style="margin-right:8px"/>
+  <img src="morphology/DPP_0808.JPG" width="220" style="margin-right:8px"/>
+  <img src="morphology/DPP_0809.JPG" width="220" style="margin-right:8px"/>
+  <img src="morphology/DPP_0810.JPG" width="220"/>
+</p>
+
+#### Edges (Canny)
+<p align="left">
+  <img src="edges/DPP_0807.JPG" width="220" style="margin-right:8px"/>
+  <img src="edges/DPP_0808.JPG" width="220" style="margin-right:8px"/>
+  <img src="edges/DPP_0809.JPG" width="220" style="margin-right:8px"/>
+  <img src="edges/DPP_0810.JPG" width="220"/>
+</p>
+
+#### Final Processed
+<p align="left">
+  <img src="final_processed/DPP_0807.JPG" width="220" style="margin-right:8px"/>
+  <img src="final_processed/DPP_0808.JPG" width="220" style="margin-right:8px"/>
+  <img src="final_processed/DPP_0809.JPG" width="220" style="margin-right:8px"/>
+  <img src="final_processed/DPP_0810.JPG" width="220"/>
+</p>
 
 ---
+
+### Final 3D model
+
+![Full Castle](full_castle.png)
+![South Building](south_building.png)
+
+Download the final model: [full_castle.ply](full_castle.ply){:target="_blank"}
+Download the South Building (128 HD images) model: [south_building.ply](south_building.ply){:target="_blank"}
