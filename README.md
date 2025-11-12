@@ -32,18 +32,23 @@ The architecture consists of three major modules:
 ### 🐧 **Ubuntu 22.04 / WSL2 (Recommended)**
 This setup is easiest because COLMAP is natively supported.
 
-#### **Step 1: Install dependencies**
+#### **Step 1: Install Dependencies**
 ```bash
 sudo apt update
-sudo apt install python3 python3-pip colmap
-pip install flask pillow numpy opencv-python
+sudo apt install -y python3 python3-venv python3-pip build-essential
+pip install -r requirements.txt
+sudo apt install -y colmap
 ```
-
-#### **Step 2: Run the Flask server**
+#### **Step 2: Create virtualenv**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+#### **Step 3: Run the Flask server**
 ```bash
 python3 app.py
 ```
-#### **Step 3: Access in browser**
+#### **Step 4: Access in browser**
 ```bash
 Visit http://localhost:5000
 ```
@@ -56,10 +61,12 @@ Download Python (≥3.10) from
 https://www.python.org/downloads/
 During installation, tick ✅ “Add to PATH”.
 ```
-#### **Step 2: Install Python libraries**
+#### **Step 2: Install Dependencies**
 Open Command Prompt:
 ```bash
-pip install flask pillow numpy opencv-python
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
 ```
 #### **Step 3: Install COLMAP**
 1. Download the Windows build from the official page:
@@ -69,6 +76,9 @@ https://colmap.github.io/install.html
 2. Extract and add the folder path (e.g., C:\Program Files\COLMAP) to System PATH:
 ```bash
 Search “Environment Variables” → Edit PATH → Add new → Paste path.
+If `colmap` is not globally available (returns "command not found"), either:
+- Add the COLMAP installation folder to your PATH, or
+- Set the environment variable `COLMAP_BIN` to the full path of the executable. See Troubleshooting below.
 ```
 3. Test installation:
 ```bash
@@ -76,7 +86,7 @@ colmap -h
 ```
 #### **Step 4: Run the Flask app**
 ```bash
-python3 app.py
+python app.py
 ```
 #### **Step 5: Access in browser**
 ```bash
@@ -126,9 +136,7 @@ The current implementation focuses on modularity, interpretability, and performa
 
 ## 👨‍💻 Contributors
 
-**Raj Kothari** 
-**Bhavya Sanghrajka**
-**Harsh Maru**
+**Raj Kothari, Bhavya Sanghrajka, Harsh Maru**
 
 Together, the team built, tested, and documented the **PointLab – Image2Model** system as a unified research initiative combining vision and geometry.
 
@@ -174,26 +182,26 @@ This project is licensed under the **MIT License**, allowing open academic and r
 
 #### Median Filtered
 <p align="left">
-  <img src="median_filtered/DPP_0807.PNG" width="220" style="margin-right:8px"/>
-  <img src="median_filtered/DPP_0808.PNG" width="220" style="margin-right:8px"/>
-  <img src="median_filtered/DPP_0809.PNG" width="220" style="margin-right:8px"/>
-  <img src="median_filtered/DPP_0810.PNG" width="220"/>
+  <img src="median_filtered/DPP_0807.png" width="220" style="margin-right:8px"/>
+  <img src="median_filtered/DPP_0808.png" width="220" style="margin-right:8px"/>
+  <img src="median_filtered/DPP_0809.png" width="220" style="margin-right:8px"/>
+  <img src="median_filtered/DPP_0810.png" width="220"/>
 </p>
 
 #### Morphological Cleaned
 <p align="left">
-  <img src="morphology/DPP_0807.PNG" width="220" style="margin-right:8px"/>
-  <img src="morphology/DPP_0808.PNG" width="220" style="margin-right:8px"/>
-  <img src="morphology/DPP_0809.PNG" width="220" style="margin-right:8px"/>
-  <img src="morphology/DPP_0810.PNG" width="220"/>
+  <img src="morphology/DPP_0807.png" width="220" style="margin-right:8px"/>
+  <img src="morphology/DPP_0808.png" width="220" style="margin-right:8px"/>
+  <img src="morphology/DPP_0809.png" width="220" style="margin-right:8px"/>
+  <img src="morphology/DPP_0810.png" width="220"/>
 </p>
 
 #### Edges (Canny)
 <p align="left">
-  <img src="edges/DPP_0807.PNG" width="220" style="margin-right:8px"/>
-  <img src="edges/DPP_0808.PNG" width="220" style="margin-right:8px"/>
-  <img src="edges/DPP_0809.PNG" width="220" style="margin-right:8px"/>
-  <img src="edges/DPP_0810.PNG" width="220"/>
+  <img src="edges/DPP_0807.png" width="220" style="margin-right:8px"/>
+  <img src="edges/DPP_0808.png" width="220" style="margin-right:8px"/>
+  <img src="edges/DPP_0809.png" width="220" style="margin-right:8px"/>
+  <img src="edges/DPP_0810.png" width="220"/>
 </p>
 
 #### Final Processed
@@ -206,10 +214,11 @@ This project is licensed under the **MIT License**, allowing open academic and r
 
 ---
 
-### Final 3D model
+### Final 3D Model
+<p align="left">
+  <img src="castle.png" alt="Full Castle" width="450" style="margin:10px"/>
+  <img src="south_building.png" alt="South Building" width="450" style="margin:10px"/>
+</p>
 
-![Full Castle](full_castle.png)
-![South Building](south_building.png)
 
-Download the final model: [full_castle.ply](full_castle.ply)
 
