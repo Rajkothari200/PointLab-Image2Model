@@ -174,26 +174,26 @@ This project is licensed under the **MIT License**, allowing open academic and r
 
 #### Median Filtered
 <p align="left">
-  <img src="median_filtered/DPP_0807.JPG" width="220" style="margin-right:8px"/>
-  <img src="median_filtered/DPP_0808.JPG" width="220" style="margin-right:8px"/>
-  <img src="median_filtered/DPP_0809.JPG" width="220" style="margin-right:8px"/>
-  <img src="median_filtered/DPP_0810.JPG" width="220"/>
+  <img src="median_filtered/DPP_0807.PNG" width="220" style="margin-right:8px"/>
+  <img src="median_filtered/DPP_0808.PNG" width="220" style="margin-right:8px"/>
+  <img src="median_filtered/DPP_0809.PNG" width="220" style="margin-right:8px"/>
+  <img src="median_filtered/DPP_0810.PNG" width="220"/>
 </p>
 
 #### Morphological Cleaned
 <p align="left">
-  <img src="morphology/DPP_0807.JPG" width="220" style="margin-right:8px"/>
-  <img src="morphology/DPP_0808.JPG" width="220" style="margin-right:8px"/>
-  <img src="morphology/DPP_0809.JPG" width="220" style="margin-right:8px"/>
-  <img src="morphology/DPP_0810.JPG" width="220"/>
+  <img src="morphology/DPP_0807.PNG" width="220" style="margin-right:8px"/>
+  <img src="morphology/DPP_0808.PNG" width="220" style="margin-right:8px"/>
+  <img src="morphology/DPP_0809.PNG" width="220" style="margin-right:8px"/>
+  <img src="morphology/DPP_0810.PNG" width="220"/>
 </p>
 
 #### Edges (Canny)
 <p align="left">
-  <img src="edges/DPP_0807.JPG" width="220" style="margin-right:8px"/>
-  <img src="edges/DPP_0808.JPG" width="220" style="margin-right:8px"/>
-  <img src="edges/DPP_0809.JPG" width="220" style="margin-right:8px"/>
-  <img src="edges/DPP_0810.JPG" width="220"/>
+  <img src="edges/DPP_0807.PNG" width="220" style="margin-right:8px"/>
+  <img src="edges/DPP_0808.PNG" width="220" style="margin-right:8px"/>
+  <img src="edges/DPP_0809.PNG" width="220" style="margin-right:8px"/>
+  <img src="edges/DPP_0810.PNG" width="220"/>
 </p>
 
 #### Final Processed
@@ -211,5 +211,5 @@ This project is licensed under the **MIT License**, allowing open academic and r
 ![Full Castle](full_castle.png)
 ![South Building](south_building.png)
 
-Download the final model: [full_castle.ply](full_castle.ply){:target="_blank"}
-Download the South Building (128 HD images) model: [south_building.ply](south_building.ply){:target="_blank"}
+Download the final model: [full_castle.ply](full_castle.ply)
+
