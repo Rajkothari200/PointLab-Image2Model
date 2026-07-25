@@ -71,7 +71,7 @@ pip install -r requirements.txt
 #### **Step 3: Install COLMAP**
 1. Download the Windows build from the official page:
 ```bash
-https://colmap.github.io/install.html
+https://github.com/colmap/colmap/releases
 ```
 2. Extract and add the folder path (e.g., C:\Program Files\COLMAP) to System PATH:
 ```bash
